@@ -1,3 +1,5 @@
+# Fork Ximmer
+> Goal is to add possibility to use -d option with a list of domains in file
 
 # TLD Scanner
 TLD Scanner scans for all existing top level domains for a give domain name.
