@@ -11,6 +11,7 @@ import urllib.request
 from tqdm import tqdm
 
 domain = ''
+domain_list = ''
 https = False
 outputfile = ''
 tldfile = ''
@@ -19,10 +20,18 @@ iana = False
 
 
 def scan(tlds, domain, protocols):
+    """
+    Scan fonction.
+    For one domain scan tlds passed
+    :param tlds: list of tlds
+    :param domain: domain to test
+    :param protocols:
+    :return:
+    """
     if outputfile is not '':
         f = open(outputfile, 'w')
     exists = {}
-    for tld in tqdm(tlds, unit="domains"):
+    for tld in tqdm(tlds, unit="domains "):
         for protocol in protocols:
             try:
                 ip = ""
@@ -43,6 +52,9 @@ def scan(tlds, domain, protocols):
 
 
 def print_header():
+    """
+    Function printing the header for programm
+    """
     print('  _______ _      _____     _____  _____          _   _ _   _ ______ _____  ')
     print(' |__   __| |    |  __ \   / ____|/ ____|   /\   | \ | | \ | |  ____|  __ \ ')
     print('    | |  | |    | |  | | | (___ | |       /  \  |  \| |  \| | |__  | |__) |')
@@ -53,18 +65,22 @@ def print_header():
 
 
 def main(argv):
-    global domain, https, outputfile, tldfile, mode, iana
+    # TODO: verif la nouvelle option '-l'
+    global domain, https, outputfile, tldfile, mode, iana, domain_list
     c = False
     n = False
     b = False
     try:
-        opts, args = getopt.getopt(argv, "bncsd:o:i:f")
+        opts, args = getopt.getopt(argv, "bncsd:o:i:f:l")
     except getopt.GetoptError:
-        print('tld_scanner.py  [-d <domain>] [-o <outputfile>] [-i <tldfile>] [-n] [-c] [-b] [-s] [-f]')
+        print('tld_scanner.py  [-d <domain> | -l <domain list>] [-o <outputfile>] [-i <tldfile>] [-n] [-c] [-b] [-s] '
+              '[-f]')
         print('')
         print('This tool scans for possible TLDs of a given domain name')
         print('')
         print('-d <domain>     | Specifiy the domain name, example: "google"')
+        print('-l <domain list>     | Specifiy the domain list, each domains separated by a new line, '
+              'example :"domains.lst"')
         print('-o <outputfile> | Write results into <outputfile> as json')
         print('-i <tldfile>    | Use your own custom TLD list')
         print('                  One TLD per line, no other seperators, case insensitive')
@@ -94,6 +110,8 @@ def main(argv):
             n = True
         elif opt in "-f":
             iana = True
+        elif opt in "-d":
+            domain_list = arg
     mode = 'b'  # DEFAULT
     if b or (n and c):
         mode = 'b'
@@ -110,8 +128,8 @@ if __name__ == '__main__':
     if iana:
         try:
             print("Getting the newest TLD's from iana.org . . .")
-            f = urllib.request.urlopen("https://data.iana.org/TLD/tlds-alpha-by-domain.txt")
-            data = f.read()
+            tld_iana = urllib.request.urlopen("https://data.iana.org/TLD/tlds-alpha-by-domain.txt")
+            data = tld_iana.read()
             with open("tld_scanner_list.txt", "wb") as liste:
                 liste.write(data)
         except Exception as e:
